@@ -7,11 +7,6 @@ resource "aws_s3_bucket" "app2_bucket" {
   }
 }
 
-resource "aws_s3_bucket_acl" "app2_bucket_acl" {
-  bucket = aws_s3_bucket.app2_bucket.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_versioning" "app2_bucket_versioning" {
   bucket = aws_s3_bucket.app2_bucket.id
   versioning_configuration {
@@ -28,11 +23,6 @@ resource "aws_s3_bucket" "glue_scripts" {
     Name        = var.glue_bucket_name
     Environment = "Prod"
   }
-}
-
-resource "aws_s3_bucket_acl" "app3_bucket_acl" {
-  bucket = aws_s3_bucket.glue_scripts.id
-  acl    = "private"
 }
 
 resource "aws_s3_bucket_versioning" "app3_bucket_versioning" {
@@ -53,6 +43,7 @@ resource "aws_s3_object" "glue_etl_data1" {
   key    = "jobs/data.json"
   source = "jobs/data.json" # Make sure this file exists locally
 }
+
 resource "aws_s3_object" "glue_etl_data2" {
   bucket = aws_s3_bucket.glue_scripts.id
   key    = "jobs/data.csv"

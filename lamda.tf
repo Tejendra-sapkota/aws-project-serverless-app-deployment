@@ -1,87 +1,166 @@
-# Package the Lambda function code
-data "archive_file" "lambda_invoke_dynamodb" {
-  type        = "zip"
-  source_file = "${path.module}/lambda/invoke-dynamodb/app.py"
-  output_path = "${path.module}/lambda/invoke-dynamodb/function.zip"
+
+# IAM role for Glue jobs
+resource "aws_iam_role" "glue_job_role" {
+  name = "${var.glue_iam_role_prefix}_S3"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "glue.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
-data "archive_file" "lambda_invoke_s3" {
-  type        = "zip"
-  source_file = "${path.module}/lambda/invoke-s3/app.py"
-  output_path = "${path.module}/lambda/invoke-s3/function.zip"
-}
+#Lambda-1 IAM role
 
-data "archive_file" "lambda_invoke_glue" {
-  type        = "zip"
-  source_file = "${path.module}/lambda/invoke-glue/app.py"
-  output_path = "${path.module}/lambda/invoke-glue/function.zip"
-}
+resource "aws_iam_role" "lambda_role_dynamodb" {
+  name = "${var.lambda_iam_role_prefix}_dynamodb"
 
-# Lambda function
-resource "aws_lambda_function" "invoke_dynamodb" {
-  filename         = data.archive_file.lambda_invoke_dynamodb.output_path
-  function_name    = "Invoke_Dynamodb_lambda_function"
-  role             = aws_iam_role.lambda_role_dynamodb.arn
-  handler          = "app.lambda_handler"
-  source_code_hash = data.archive_file.lambda_invoke_dynamodb.output_base64sha256
-
-  runtime = "python3.13"
-
-  environment {
-    variables = {
-      ENVIRONMENT = "production"
-      LOG_LEVEL   = "info"
-    }
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
 
   tags = {
-    Environment = "production"
-    Application = "App1"
+    Name = "lambda_execution_role_dynamodb_access"
   }
 }
 
 
-resource "aws_lambda_function" "invoke_s3" {
-  filename         = data.archive_file.lambda_invoke_s3.output_path
-  function_name    = "Invoke_S3_lambda_function"
-  role             = aws_iam_role.lambda_role_s3.arn
-  handler          = "app.lambda_handler"
-  source_code_hash = data.archive_file.lambda_invoke_s3.output_base64sha256
+resource "aws_iam_role" "lambda_role_s3" {
+  name = "${var.lambda_iam_role_prefix}_s3"
 
-  runtime = "python3.13"
-
-  environment {
-    variables = {
-      ENVIRONMENT = "production"
-      LOG_LEVEL   = "info"
-    }
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
 
   tags = {
-    Environment = "production"
-    Application = "App2"
+    Name = "lambda_execution_role_s3_access"
+  }
+}
+
+resource "aws_iam_role" "lambda_role_glue" {
+  name = "${var.lambda_iam_role_prefix}_glue"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Name = "lambda_execution_role_glue_access"
   }
 }
 
 
-resource "aws_lambda_function" "invoke_glue" {
-  filename         = data.archive_file.lambda_invoke_glue.output_path
-  function_name    = "Invoke_Glue_lambda_function"
-  role             = aws_iam_role.lambda_role_glue.arn
-  handler          = "app.lambda_handler"
-  source_code_hash = data.archive_file.lambda_invoke_glue.output_base64sha256
+resource "aws_iam_policy" "dynamodb_policy" {
+  name        = "app1_dynamodb_fullAccess_policy"
+  path        = "/"
+  description = "app1_dynamodb_fullAccess_policy"
 
-  runtime = "python3.13"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
 
-  environment {
-    variables = {
-      ENVIRONMENT = "production"
-      LOG_LEVEL   = "info"
-    }
-  }
+resource "aws_iam_policy" "s3_policy" {
+  name        = "app2_s3_fullAccess_policy"
+  path        = "/"
+  description = "app2_s3_fullAccess_policy"
 
-  tags = {
-    Environment = "production"
-    Application = "App3"
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "glue_policy" {
+  name        = "app3_glue_fullAccess_policy"
+  path        = "/"
+  description = "app3_glue_fullAccess_policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "glue:*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+
+resource "aws_iam_role_policy_attachment" "glue-role_s3_policy_attach" {
+  role       = aws_iam_role.glue_job_role.name
+  policy_arn = aws_iam_policy.s3_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role_dynamodb_policy_attach" {
+  role       = aws_iam_role.lambda_role_dynamodb.name
+  policy_arn = aws_iam_policy.dynamodb_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role_s3_policy_attach" {
+  role       = aws_iam_role.lambda_role_s3.name
+  policy_arn = aws_iam_policy.s3_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role_glue_policy_attach" {
+  role       = aws_iam_role.lambda_role_glue.name
+  policy_arn = aws_iam_policy.glue_policy.arn
 }

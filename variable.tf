@@ -15,20 +15,30 @@ variable "glue_bucket_name" {
   description = "Enter Your Glue Bucket Name"
   default     = "metroc-ccp-aws-project2-app3-glue-tejendra"
 }
+variable "lambda_iam_role_prefix" {
+  type        = string
+  description = "Enter Your IAM Role Prefix"
+  default     = "Lambda_Execution_Role_with_Invoke"
 }
 
-variable "glue_bucket_name" {
+variable "glue_iam_role_prefix" {
   type        = string
-  description = "Enter Your Glue Bucket Name"
-  default     = "metroc-ccp-aws-project2-app3-glue-tejendra"
+  description = "Enter Your IAM Role Prefix"
+  default     = "Glue_Execution_Role_with_Invoke"
 }
-}
-variable "serverless_api" {
+
+variable "lambda_funnction_name_prefix" {
   type        = string
-  description = "Enter Your Glue Bucket Name"
-  default     = "metroc-ccp-aws-project2-app3-glue-tejendra"
+  description = "Enter Your IAM Role Prefix"
+  default     = "lambda_function_invoke"
 }
+
+variable "api_name" {
+  type        = string
+  description = "Enter Your API Name"
+  default     = "AWS_Serverless_Multi_Channel_API"
 }
+
 variable "table_name" {
   type        = string
   description = "Enter Your DynamoDB table name"

@@ -1,18 +1,18 @@
+
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
-  name           = "lambda-apigateway"
+  name           = var.table_name
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "id"
-  
 
   attribute {
-    name = "Id"
+    name = "id"
     type = "S"
   }
 
   tags = {
-    Name        = "lambda-apigateway"
-    Environment = "prod"
+    Name        = var.table_name
+    Environment = "Prod"
   }
 }
