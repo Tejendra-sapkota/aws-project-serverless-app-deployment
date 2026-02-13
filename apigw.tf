@@ -7,9 +7,9 @@ resource "aws_apigatewayv2_integration" "dynamodb_lambda" {
   api_id           = aws_apigatewayv2_api.serverless_api.id
   integration_type = "AWS_PROXY"
 
-  connection_type    = "INTERNET"
-  integration_method = "POST"
-  integration_uri    = aws_lambda_function.invoke_dynamodb.invoke_arn
+  connection_type        = "INTERNET"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.invoke_dynamodb.invoke_arn
   payload_format_version = "2.0"
 }
 
@@ -17,9 +17,9 @@ resource "aws_apigatewayv2_integration" "s3_lambda" {
   api_id           = aws_apigatewayv2_api.serverless_api.id
   integration_type = "AWS_PROXY"
 
-  connection_type    = "INTERNET"
-  integration_method = "POST"
-  integration_uri    = aws_lambda_function.invoke_s3.invoke_arn
+  connection_type        = "INTERNET"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.invoke_s3.invoke_arn
   payload_format_version = "2.0"
 }
 
@@ -27,9 +27,9 @@ resource "aws_apigatewayv2_integration" "glue_lambda" {
   api_id           = aws_apigatewayv2_api.serverless_api.id
   integration_type = "AWS_PROXY"
 
-  connection_type    = "INTERNET"
-  integration_method = "POST"
-  integration_uri    = aws_lambda_function.invoke_glue.invoke_arn
+  connection_type        = "INTERNET"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.invoke_glue.invoke_arn
   payload_format_version = "2.0"
 }
 

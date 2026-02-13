@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # aws-project-derverless-app-deployment
 # Test scripts
 http_api_endpoint = "https://ynturx4et2.execute-api.ca-central-1.amazonaws.com/"
@@ -15,3 +16,6 @@ curl -X POST "https://ynturx4et2.execute-api.ca-central-1.amazonaws.com/invoke/d
 curl -X POST "https://ynturx4et2.execute-api.ca-central-1.amazonaws.com/invoke/dynamodb"
 -H "Content-Type: application/json"
 -d '{"id": "125", "number": 45}'
+=======
+# aws-project-serverless-app-deployment
+>>>>>>> 0b59c4ef3c0729e587dec4df7d239b114d70d64f
